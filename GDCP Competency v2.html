@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GDCP Staff Competency Matrix</title>
+<style>
+  :root {
+    --primary: #007a6c;
+    --primary-dark: #005a50;
+    --primary-light: #e6f4f2;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --red-bg: #fef2f2;
+    --red-text: #991b1b;
+    --red-border: #fecaca;
+    --amber-bg: #fffbeb;
+    --amber-text: #92400e;
+    --amber-border: #fde68a;
+    --green-bg: #f0fdf4;
+    --green-text: #166534;
+    --green-border: #bbf7d0;
+    --slate-bg: #f1f5f9;
+    --slate-text: #475569;
+    --slate-border: #cbd5e1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    line-height: 1.45;
+  }
+  header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-title h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+  .header-title p { font-size: 0.8rem; opacity: 0.85; }
+  .header-actions { display: flex; gap: 8px; }
+  .btn {
+    appearance: none;
+    border: none;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { background: rgba(255,255,255,0.25); }
+  .main-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  /* KPI Tiles */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .kpi-card {
+    background: var(--card-bg);
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .kpi-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+  .kpi-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+  .kpi-val { font-size: 1.5rem; font-weight: 800; margin-top: 2px; }
+
+  /* Controls */
+  .controls-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .search-input {
+    flex: 1;
+    min-width: 220px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--primary); }
+  .filter-select {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    background: white;
+    color: var(--text-main);
+    outline: none;
+  }
+
+  /* Role Filter Pills */
+  .pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .pill-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-right: 4px; }
+  .pill-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pill-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* View Header */
+  .view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .view-count { font-size: 0.88rem; font-weight: 700; color: var(--text-muted); }
+
+  /* Cards Grid */
+  .staff-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .staff-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  }
+  .staff-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+  .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .staff-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; }
+  .staff-id { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+  .comp-list { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .comp-item {
+    border-left: 3px solid var(--primary);
+    padding-left: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .comp-name { font-weight: 600; font-size: 0.82rem; }
+  .comp-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+    width: fit-content;
+  }
+  .badge-red { background: var(--red-bg); color: var(--red-text); border-color: var(--red-border); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber-text); border-color: var(--amber-border); }
+  .badge-green { background: var(--green-bg); color: var(--green-text); border-color: var(--green-border); }
+  .badge-slate { background: var(--slate-bg); color: var(--slate-text); border-color: var(--slate-border); }
+
+  .wa-btn {
+    border: none;
+    background: #25d366;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 4px;
+    text-decoration: none;
+  }
+  .wa-btn:hover { background: #1ebc59; }
+
+  /* Compact Table */
+  .table-container {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f8fafc; font-weight: 700; color: var(--text-muted); text-transform: uppercase; font-size: 0.7rem; }
+  tr:hover { background: #fbfcfe; }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1f2937;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 100;
+    display: none;
+    animation: fadeIn 0.2s;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media print {
+    header, .controls-card, .kpi-grid, .btn, .wa-btn { display: none !important; }
+    body { background: white; }
+    .staff-card { break-inside: avoid; border: 1px solid #ccc; box-shadow: none; margin-bottom: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-title">
+      <h1>GDCP Staff Competency Matrix</h1>
+      <p>Operational Role Tracking & Regulatory Expiry Monitor</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="toggleView()" id="viewToggleBtn">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm1 2v2h14V4H1zm0 3v2h14V7H1zm0 3v2h14v-2H1zm0 3v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1H1z"/></svg>
+        <span id="viewBtnText">Compact View</span>
+      </button>
+      <button class="btn" onclick="exportToCSV()">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="main-container">
+
+  <!-- KPI Summary Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card" onclick="filterByStatus('All')">
+      <div class="kpi-label">Total Staff</div>
+      <div class="kpi-val" id="kpiTotalStaff">0</div>
+    </div>
+    <div class="kpi-card" onclick="filterByStatus('All')">
+      <div class="kpi-label">Active Certs</div>
+      <div class="kpi-val" id="kpiTotalCerts">0</div>
+    </div>
+    <div class="kpi-card" style="border-left: 3px solid #dc2626;" onclick="filterByStatus('Expired')">
+      <div class="kpi-label" style="color:#dc2626;">🔴 Expired</div>
+      <div class="kpi-val" id="kpiExpired" style="color:#dc2626;">0</div>
+    </div>
+    <div class="kpi-card" style="border-left: 3px solid #d97706;" onclick="filterByStatus('Expiring Soon')">
+      <div class="kpi-label" style="color:#d97706;">🟠 Soon (&le;120d)</div>
+      <div class="kpi-val" id="kpiExpiringSoon" style="color:#d97706;">0</div>
+    </div>
+    <div class="kpi-card" style="border-left: 3px solid #16a34a;" onclick="filterByStatus('Valid')">
+      <div class="kpi-label" style="color:#16a34a;">🟢 Valid</div>
+      <div class="kpi-val" id="kpiValid" style="color:#16a34a;">0</div>
+    </div>
+  </div>
+
+  <!-- Search & Role Filtering Controls -->
+  <div class="controls-card">
+    <div class="search-row">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search staff name, ID, or competency keyword...">
+      <select id="statusFilter" class="filter-select">
+        <option value="All">All Expiry Statuses</option>
+        <option value="Expired">🔴 Expired Only</option>
+        <option value="Expiring Soon">🟠 Expiring Soon (&le;120d Buffer)</option>
+        <option value="Valid">🟢 Valid (>120d)</option>
+        <option value="Indefinite">⚪ Permanent / Verified / TBA</option>
+      </select>
+    </div>
+
+    <!-- 1-Tap Operational Role Filter Pills -->
+    <div class="pills-container">
+      <span class="pill-label">Operational Role:</span>
+      <button class="pill-btn active" onclick="setRoleFilter('All', this)">All Roles</button>
+      <button class="pill-btn" onclick="setRoleFilter('Boiler', this)">Boiler Operations</button>
+      <button class="pill-btn" onclick="setRoleFilter('Electrical', this)">Electrical Systems</button>
+      <button class="pill-btn" onclick="setRoleFilter('ConfinedSpace', this)">Confined Space Safety</button>
+      <button class="pill-btn" onclick="setRoleFilter('EnvSafety', this)">Environmental &amp; Safety</button>
+    </div>
+  </div>
+
+  <!-- View Controls & Results Meta -->
+  <div class="view-header">
+    <div class="view-count" id="resultsCount">Showing roster...</div>
+  </div>
+
+  <!-- Main View Container -->
+  <div id="cardViewContainer" class="staff-grid"></div>
+  <div id="tableViewContainer" class="table-container" style="display:none;">
+    <table>
+      <thead>
+        <tr>
+          <th>Staff Name</th>
+          <th>Staff ID</th>
+          <th>Role / Discipline</th>
+          <th>Competency Title</th>
+          <th>Authority</th>
+          <th>Status &amp; Countdown</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<div id="toastNotification" class="toast">Reminder copied to clipboard!</div>
+
+<script>
+// --- 1. EMBEDDED CONSOLIDATED DATASET ---
+const rawStaffData = [
+  {"Name":"Adib Fikri Zulkeflee","StaffID":"1093862","Competencies":[{"Name":"Energy Manager","Authority":"ST","Expiry":"OCT 26"},{"Name":"Vibration Analyst Cat-II (VCAT- II)","Authority":"MOBIUS","Expiry":"AUG 2029"},{"Name":"Professional Technologist","Authority":"MBOT","Expiry":"AUG 2026"}]},
+  {"Name":"Ahmad Fauzi Md Lazim","StaffID":"1043588","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Ahmad Haziq Mustafa","StaffID":"1106538","Competencies":[{"Name":"Safety and Health Officer (SHO)","Authority":"NIOSH","Expiry":"13.5.2026"},{"Name":"CePIETSO","Authority":"EiMAS","Expiry":"16/12/2025"},{"Name":"CePSWAM","Authority":"EiMAS","Expiry":"APRIL 2026"},{"Name":"Noise Risk Assessor (NRA)","Authority":"NIOSH","Expiry":"13/3/2026"},{"Name":"Site Safety Supervisor","Authority":"NIOSH","Expiry":"16/1/2022"}]},
+  {"Name":"Ahmad Syahir B Hassan","StaffID":"1043743","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Ahmad Syakir Abd Latif","StaffID":"1060446","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"04/02/2028"},{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Energy Manager","Authority":"Energy Commission","Expiry":"22/10/2026"},{"Name":"Certified Environmental Professional in Scheduled Waste Management (CePSWAM)","Authority":"INSTITUT ALAM SEKITAR MALAYSIA, JAS","Expiry":"TBA"}]},
+  {"Name":"Ahmad Syazwan B Jamaludin","StaffID":"1075199","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
+  {"Name":"Amer Amirul Atan","StaffID":"1043886","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"2027"}]},
+  {"Name":"Amir Firdaus Abd Wahab","StaffID":"1061409","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"24/07/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"18/09/2027"},{"Name":"Energy Manager","Authority":"Suruhanjaya Tenaga","Expiry":"21/10/2026"},{"Name":"CePIETSO-PCP","Authority":"JABATAN ALAM SEKITAR","Expiry":"-"}]},
+  {"Name":"Azmawi Hashim","StaffID":"1039629","Competencies":[{"Name":"B0 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"9/11/2035"}]},
+  {"Name":"Azrin B Arifin","StaffID":"1011354","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"05/11/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"20/12/2025"}]},
+  {"Name":"Azwan Kama Azmir","StaffID":"99818","Competencies":[{"Name":"B0 Chargeman","Authority":"Malaysia Board of Technologists","Expiry":"12 JAN 2027"}]},
+  {"Name":"Che Ku Mohd Hafizi Che Ku Hamzah","StaffID":"1022212","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
+  {"Name":"Esmail Abdullah","StaffID":"N/A","Competencies":[{"Name":"A1 Chargeman","Authority":"ST","Expiry":"2050"}]},
+  {"Name":"Faizal Ahmad","StaffID":"1099535","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"26-2-2026"}]},
+  {"Name":"Fakhruddin Yunus","StaffID":"1043934","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31 May 2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"06/10/2027"}]},
+  {"Name":"Firdaus Kamaruzaman Kamaruldin","StaffID":"1088007","Competencies":[{"Name":"Vibration Analyst Cat-III (VCAT- III)","Authority":"MOBIUS INSTITUTE","Expiry":"24 October 2028"},{"Name":"Machine Lubricant Analyst II (MLA II)","Authority":"ICML","Expiry":"1 September 2027"}]},
+  {"Name":"Hafezze Kamarudin","StaffID":"1043935","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"JKKP WP","Expiry":"-"}]},
+  {"Name":"Hamidun Abd Rahman","StaffID":"1043890","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"18/07/2027"}]},
+  {"Name":"Hasham Din","StaffID":"1043936","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"02/12/2027"}]},
+  {"Name":"Hazri Hafizi Halim","StaffID":"1060593","Competencies":[{"Name":"Steam Engineer Grade 1","Authority":"DOSH","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"26/11/2027"},{"Name":"CePSWAM","Authority":"DOE","Expiry":"Yearly renew CPD hour"},{"Name":"Energy Manager","Authority":"Energy Commission (ST)","Expiry":"23/10/2026"}]},
+  {"Name":"Herman Ahamadi","StaffID":"1043891","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"-"}]},
+  {"Name":"Imran M Sarip","StaffID":"1043940","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"03/02/2029"},{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/05/2027"}]},
+  {"Name":"Jasni Jamaluddin","StaffID":"1043941","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"15/07/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"03/11/2027"},{"Name":"Drebar Enjin Pembakaran Dalam (OYKEPD)","Authority":"DOSH","Expiry":"-"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"3/11/2027"}]},
+  {"Name":"Jemley Antung","StaffID":"1043892","Competencies":[{"Name":"A0 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"No Expiry Data"}]},
+  {"Name":"Kamarullzaman Bin Mat Zain","StaffID":"1011383","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Khairul Adha Mat Zuki","StaffID":"1001257","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
+  {"Name":"Khairul Afdal Ismail","StaffID":"1136935","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
+  {"Name":"Khairul Afiq Khalid","StaffID":"1043944","Competencies":[{"Name":"Drebar Enjin Pembakaran Dalam (Gred 2)","Authority":"DOSH","Expiry":"NO"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"MKRS TRAINING INSTITUTE","Expiry":"13 JUNE 2026"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"29 JAN 2022"}]},
+  {"Name":"Khairul Ridhwan Alias","StaffID":"1022137","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
+  {"Name":"Luqman Hakim Ab Razak","StaffID":"1093857","Competencies":[{"Name":"Wireman PW4","Authority":"Suruhanjaya Tenaga","Expiry":"No Expiry Data"}]},
+  {"Name":"M Affandi Abu Hassan","StaffID":"1043951","Competencies":[{"Name":"B0 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"-"},{"Name":"ICE Driver 2nd Grade","Authority":"JKKP","Expiry":"-"}]},
+  {"Name":"M Affzan Jailani","StaffID":"1114802","Competencies":[{"Name":"A1 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"No Expiry Data"}]},
+  {"Name":"M Arif Niza Burhanuddin","StaffID":"1057394","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"2027"},{"Name":"ICE Driver","Authority":"DOSH","Expiry":"2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"08/09/2025"}]},
+  {"Name":"M Asri Abd Ghani","StaffID":"1098239","Competencies":[{"Name":"Vibration Analyst Cat-II (VCAT- II)","Authority":"Mobius Institute","Expiry":"12 March 2030"},{"Name":"Registered Energy Manager (REM) Type 1","Authority":"Energy Commissioning","Expiry":"23/10/2026"}]},
+  {"Name":"M Asri Zakaria","StaffID":"1043904","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/5/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"24/12/2026"}]},
+  {"Name":"M Azli Shamsuri","StaffID":"1043905","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH / JKKP","Expiry":"31/05/2027"},{"Name":"Drebar Enjin Pembakaran Dalam (Gred 1)","Authority":"JKKP","Expiry":"-"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"-"}]},
+  {"Name":"M Azrul Yuthly","StaffID":"1136111","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"27/02/2027"}]},
+  {"Name":"M Dzul Fikri Mohamad Duri","StaffID":"1043949","Competencies":[{"Name":"Steam Engineer Grade 1","Authority":"DOSH","Expiry":"5/6/2027"}]},
+  {"Name":"M Edhzani Arbangai","StaffID":"1043952","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"24/10/2027"}]},
+  {"Name":"M Fariz Ma'Amin","StaffID":"1043950","Competencies":[{"Name":"IECEx Certified Personnel","Authority":"IECEx / SIRIM","Expiry":"2029-01-25"}]},
+  {"Name":"M Faruqi Rahmad","StaffID":"1062308","Competencies":[{"Name":"Asset Reliability Practitioner: Category ARP-E","Authority":"Mobius Institute","Expiry":"3 Nov 2026"},{"Name":"Vibration Analyst Cat-II (VCAT- II)","Authority":"Mobius Institute","Expiry":"4 Jan 2028"},{"Name":"Machine Lubricant Analyst I (MLA I)","Authority":"ICML","Expiry":"1 September 2025"},{"Name":"Machine Lubricant Analyst II (MLA II)","Authority":"ICML","Expiry":"1 Dec 2026"},{"Name":"Ultrasound: Category I","Authority":"Mobius Institute","Expiry":"23 Sep 2029"}]},
+  {"Name":"M Fauzi Mat Zin","StaffID":"1043955","Competencies":[{"Name":"B4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"2027"},{"Name":"Wireman PW4","Authority":"PW-1130161","Expiry":"2027"}]},
+  {"Name":"M Hanif Sulaiman","StaffID":"1043918","Competencies":[{"Name":"A0 Chargeman","Authority":"Suruhanjaya Tenaga Malaysia","Expiry":"-"}]},
+  {"Name":"M Haris Lukman M Lotpi","StaffID":"1104009","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"11 March 2026"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JABATAN ALAM SEKITAR","Expiry":"NIL"}]},
+  {"Name":"M Izzuan Ariffin","StaffID":"1043908","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"JKKP","Expiry":"31/5/2027"}]},
+  {"Name":"M Luqman Rosli","StaffID":"1043973","Competencies":[{"Name":"CePSWAM","Authority":"DOE","Expiry":"-"}]},
+  {"Name":"M Nasir M Razali @ Yusoff","StaffID":"1083654","Competencies":[{"Name":"Infrared Thermography Category 1 (ITC-1)","Authority":"Infrared Training Center","Expiry":"8 March 2029"}]},
+  {"Name":"M Nusral Amli Ghazali","StaffID":"1043961","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH & JKKP","Expiry":"10/7/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"26/2/2026"},{"Name":"Enjin Pembakaran Dalam (Gred 2)","Authority":"JKKP","Expiry":"NO EXPIRY"}]},
+  {"Name":"M Puryadin Sudirman","StaffID":"1037822","Competencies":[{"Name":"Energy Manager","Authority":"SURUHANJAYA TENAGA (ST)","Expiry":"08/09/2027"},{"Name":"Professional Engineer (BEM)","Authority":"BOARD OF ENGINEERS MALAYSIA","Expiry":"31 DECEMBER 2026"}]},
+  {"Name":"M Rohairul Amir Mat Deris","StaffID":"1043963","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"26/05/2028"}]},
+  {"Name":"M Safik Adam Hashim","StaffID":"1043910","Competencies":[{"Name":"A0 Chargeman","Authority":"suruhanjaya tenaga","Expiry":"-"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH BANGI","Expiry":"18-12-26"}]},
+  {"Name":"M Safwan Azmi","StaffID":"1060094","Competencies":[{"Name":"API 570 Piping Inspector","Authority":"API","Expiry":"31/12/2026"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"26/2/2026"},{"Name":"IMM Coating Inspector","Authority":"IMM","Expiry":"26/7/2028"}]},
+  {"Name":"M Salihin Mat Yasin","StaffID":"1043976","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"DOSH","Expiry":"31 may 2027"}]},
+  {"Name":"M Shukori Bidin @ Zainol Abidin","StaffID":"1043911","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"27/11/2027"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"NO EXPIRY DATE."}]},
+  {"Name":"M Sufian Hamzah","StaffID":"1043977","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"9/11/2024"},{"Name":"Enjin Pembakaran Dalam (Gred 2)","Authority":"JKKP","Expiry":"-"}]},
+  {"Name":"M Yusof Saad","StaffID":"1043965","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"No Expiry Data"}]},
+  {"Name":"M Zulfadli Salleh","StaffID":"1043966","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"DOSH","Expiry":"31/5/2027"}]},
+  {"Name":"M Zulfaiz Mat Seman","StaffID":"1060392","Competencies":[{"Name":"Coating Inspector","Authority":"IMM","Expiry":"26/07/2028"},{"Name":"Infrared Thermography CAT-1","Authority":"ITC","Expiry":"No Expiry"},{"Name":"Vibration Analysis CAT-II","Authority":"Mobius Institute","Expiry":"27/09/2027"}]},
+  {"Name":"Mazhairil Paet","StaffID":"1043896","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"DOSH / JKKP","Expiry":"26/11/2027"}]},
+  {"Name":"Megat Muhamad Ariff","StaffID":"1064977","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"12/10/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"14/10/2025"}]},
+  {"Name":"Mhd Hazli Rosli","StaffID":"1130974","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"DOSH","Expiry":"23/06/2026"},{"Name":"CePSWAM","Authority":"DOE","Expiry":"No Expiry Data"},{"Name":"CePIETSO-PCP","Authority":"DOE","Expiry":"No Expiry Data"},{"Name":"CePBFO","Authority":"DOE","Expiry":"No Expiry Data"},{"Name":"Pengelasan Bahan Kimia Berbahaya","Authority":"DOSH","Expiry":"No Expiry Data"},{"Name":"Occupational Safety & Health Coordinator (OSH-C)","Authority":"DOSH","Expiry":"No Expiry Data"}]},
+  {"Name":"Mohamad Farid Fitri Zuber","StaffID":"1043897","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"9/10/2027"},{"Name":"Certified Technician (MBOT)","Authority":"MBOT","Expiry":"21 JULY 2027"}]},
+  {"Name":"Mohamad Fitri Rusli","StaffID":"1043898","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"18/12/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"11/6/2026"},{"Name":"CePIETSO PCP","Authority":"DOE","Expiry":"FTR"},{"Name":"Juruteknik Penyejukbekuan (RACS)","Authority":"DOE","Expiry":"NIL"},{"Name":"Steam Engineer Grade 2","Authority":"DOSH","Expiry":"7/1/2028"}]},
+  {"Name":"Mohamad Halim Hussin","StaffID":"1061017","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"Not Expired"}]},
+  {"Name":"Mohamad Izuddin Hashim","StaffID":"1126786","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"13/11/2026"}]},
+  {"Name":"Mohamad Nazirul Syazwan Mohamad Shukri","StaffID":"1043899","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"No Expiry Data"}]},
+  {"Name":"Mohamad Shahril Hussain","StaffID":"1043900","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"03/12/2027"}]},
+  {"Name":"Mohammad Alif Al Hafiz Bin Abdul Aziz","StaffID":"1116674","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"09/01/2026"}]},
+  {"Name":"Mohammad Ridha Bin Mohammad Khair","StaffID":"1075200","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Mohammad Syamil Izzat Nabil Othman","StaffID":"1136934","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"27/02/2027"}]},
+  {"Name":"Mohammad Zulkarnain Mohd Idris","StaffID":"1126815","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"}]},
+  {"Name":"Mohammed Syahir Alias","StaffID":"1043901","Competencies":[{"Name":"B0 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"23.10.2026"}]},
+  {"Name":"Mohd Fairuz Ramli","StaffID":"1011400","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
+  {"Name":"Mohd Faizul Md Nor","StaffID":"1001258","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Mohd Fauzi Ismail","StaffID":"1011401","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Mohd Syafiq Mohamad Tarmizi","StaffID":"1075253","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"27/02/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"04/09/2026"}]},
+  {"Name":"Muhamad Amri Misbah","StaffID":"1043967","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"25/8/2027"}]},
+  {"Name":"Muhamad Suhairul Wahid","StaffID":"1043968","Competencies":[{"Name":"Crane Inspector","Authority":"Amrest","Expiry":"27 Feb 2028"}]},
+  {"Name":"Muhammad Afiq Aiman Bin Ishak","StaffID":"1106574","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
+  {"Name":"Muhammad Akmal Hakeem Mohd Yunos","StaffID":"1116743","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"No Expiry Data"}]},
+  {"Name":"Muhammad Amirul Aiman Ahmad","StaffID":"1116744","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"}]},
+  {"Name":"Muhammad Amirin Sazali","StaffID":"1136940","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"}]},
+  {"Name":"Muhammad Izzat Haris Bin Che Jamil","StaffID":"1136939","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"13/11/2026"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/11/2026"}]},
+  {"Name":"Muhammad Naim Adli Md Yusop","StaffID":"1106551","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"}]},
+  {"Name":"Muhammad Nurhan Zainordin","StaffID":"1106552","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/11/2026"}]},
+  {"Name":"Muhd Rusmawi Deraman","StaffID":"1043920","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/5/2027"},{"Name":"Steam Engineer Grade 2","Authority":"DOSH","Expiry":"21/1/2028"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"1/10/2027"}]},
+  {"Name":"Nor Hazizi Haron","StaffID":"1060590","Competencies":[{"Name":"A4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"21/03/2027"}]},
+  {"Name":"Norhazizi Abd Hamid","StaffID":"1043921","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"24/07/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"29/09/2027"}]},
+  {"Name":"Nur Shahirah Binti Mohd Noor","StaffID":"1116666","Competencies":[{"Name":"Safety and Health Officer (SHO)","Authority":"NIOSH","Expiry":"05/01/2027"},{"Name":"CePSWAM","Authority":"EiMAS","Expiry":"28 MAY 2026"}]},
+  {"Name":"Raja Modin Iskandar","StaffID":"1043983","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"DOSH","Expiry":"23/10/2027"},{"Name":"Boiler Driver Grade 2","Authority":"DOSH","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"25/11/2026"}]},
+  {"Name":"Rizalman Abdullah","StaffID":"1043984","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"04/07/2021"}]},
+  {"Name":"Roslan Ngah","StaffID":"1043923","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"27/06/2027"}]},
+  {"Name":"Rozaidi Rais","StaffID":"1060577","Competencies":[{"Name":"Steam Engineer Grade 1","Authority":"DOSH / JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH / JKKP","Expiry":"06/10/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"No Expiry Data"},{"Name":"Safety and Health Officer (SHO)","Authority":"NIOSH","Expiry":"No Expiry Data"},{"Name":"Train The Trainer (TTT)","Authority":"NIOSH","Expiry":"No Expiry Data"}]},
+  {"Name":"Rusdi Ali","StaffID":"1043985","Competencies":[{"Name":"B4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"No Expiry Data"}]},
+  {"Name":"Saifun Najib Bin Naim","StaffID":"1136894","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"No Expiry Data"}]},
+  {"Name":"Samsulbahri B Mustakim","StaffID":"1022135","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Shaarie Khalid","StaffID":"1097878","Competencies":[{"Name":"Vibration Analyst Cat-II (VCAT- II)","Authority":"MOBIUS INSTITUTE","Expiry":"12 March 2030"}]},
+  {"Name":"Shah Azizul Hakim Hashim","StaffID":"1064858","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"NO EXPIRED"},{"Name":"Wireman PW2","Authority":"Suruhanjaya Tenaga","Expiry":"NO EXPIRED"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"22-07-2026"}]},
+  {"Name":"Shah Riza Idris","StaffID":"138657","Competencies":[{"Name":"B4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"NO"}]},
+  {"Name":"Shahrul Anuwar Yaacub","StaffID":"1043987","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"no Expiry date"}]},
+  {"Name":"Siti Nadiatul Maula Misuan","StaffID":"1092436","Competencies":[{"Name":"Occupational Safety & Health Coordinator (OSH-C)","Authority":"DOSH","Expiry":"NO"},{"Name":"Safety and Health Officer (SHO)","Authority":"DOSH","Expiry":"NO"},{"Name":"Ergonomic Trained Person","Authority":"DOSH","Expiry":"NO"},{"Name":"CePSWAM","Authority":"DOE","Expiry":"NO"}]},
+  {"Name":"Sy Ahmad Iqbal Sy Md. Harith","StaffID":"1043927","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"23/11/2028"}]},
+  {"Name":"Syafiq Roslan","StaffID":"1043750","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"12/10/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"14/10/2025"}]},
+  {"Name":"Syahridzuan Salleh","StaffID":"1060841","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"07/09/2028"}]},
+  {"Name":"Syahrul Hazri M Shaihani","StaffID":"1043925","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"13 June 2026"}]},
+  {"Name":"Wan M Haniff Wan Kamaruddin","StaffID":"1043929","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/5/2027"}]},
+  {"Name":"Zakaria Abd Majid","StaffID":"1054816","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"22/1/2029"}]},
+  {"Name":"Zahrul Akmar Hasim","StaffID":"1011394","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Zulkarnain Senu","StaffID":"1043930","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"02/03/2028"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"10/08/2025"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"23/06/2021"}]}
+];
+
+// --- 2. OPERATIONAL ROLE & DATE LOGIC ---
+
+function getRoleCategory(compName) {
+  const u = (compName || '').toUpperCase();
+  if (u.includes('STEAM') || u.includes('BOILER')) return 'Boiler';
+  if (u.includes('CHARGEMAN') || u.includes('WIREMAN') || u.includes('PW2') || u.includes('PW4')) return 'Electrical';
+  if (u.includes('AGTES') || u.includes('GAS TESTER') || u.includes('AESP') || u.includes('STANDBY') || u.includes('ENTRANT')) return 'ConfinedSpace';
+  if (u.includes('SHO') || u.includes('SAFETY') || u.includes('CEPSWAM') || u.includes('CEPIETSO') || u.includes('ENERGY MANAGER') || u.includes('OSH-C')) return 'EnvSafety';
+  return 'Other';
+}
+
+function parseExpiry(expStr) {
+  if (!expStr || expStr === 'nan' || expStr === 'N/A' || expStr === '-') {
+    return { status: 'Indefinite', label: 'Indefinite / Permanent', days: null, parsedDate: null };
+  }
+  const s = String(expStr).trim().toUpperCase();
+  const indefiniteTerms = ['NO', 'NIL', 'TBA', 'NO EXPIRY', 'NOT EXPIRED', 'NO EXPIRED', 'NO EXPIRY DATA', 'NO EXPIRY DATE.', 'YEARLY RENEW CPD HOUR', 'FTR'];
+  if (indefiniteTerms.includes(s) || s.includes('NO EXPIRY')) {
+    return { status: 'Indefinite', label: 'Indefinite / TBA', days: null, parsedDate: null };
+  }
+
+  let d = null;
+  // Format check: YYYY-MM-DD
+  if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(s)) {
+    const [y, m, day] = s.split('-').map(Number);
+    d = new Date(y, m - 1, day);
+  } else if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}$/.test(s)) {
+    const parts = s.split(/[\/\-\.]/).map(Number);
+    let day = parts[0];
+    let month = parts[1] - 1;
+    let year = parts[2];
+    if (year < 100) year += 2000;
+    d = new Date(year, month, day);
+  } else if (/^[A-Z]{3,9}\s+\d{2,4}$/.test(s)) {
+    // "OCT 26" or "APRIL 2026"
+    const [monStr, yStr] = s.split(/\s+/);
+    let year = parseInt(yStr);
+    if (year < 100) year += 2000;
+    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const mIdx = months.findIndex(m => monStr.startsWith(m));
+    if (mIdx !== -1) d = new Date(year, mIdx + 1, 0); // Last day of month
+  } else if (/^\d{4}$/.test(s)) {
+    d = new Date(parseInt(s), 11, 31); // End of year
+  } else {
+    const fallback = new Date(s);
+    if (!isNaN(fallback.getTime())) d = fallback;
+  }
+
+  if (!d || isNaN(d.getTime())) {
+    return { status: 'Indefinite', label: expStr, days: null, parsedDate: null };
+  }
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diffTime = d.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    const ago = Math.abs(diffDays);
+    return { status: 'Expired', label: `Expired (${ago}d ago)`, days: diffDays, parsedDate: d };
+  }
+  // 120-Day Regulatory Lead-time Buffer
+  if (diffDays <= 120) {
+    return { status: 'Expiring Soon', label: `Expiring soon (${diffDays}d left)`, days: diffDays, parsedDate: d };
+  }
+  const monthsLeft = Math.floor(diffDays / 30.4);
+  const durationLabel = monthsLeft >= 12 ? `${(diffDays/365).toFixed(1)}y left` : `${monthsLeft}mo left`;
+  return { status: 'Valid', label: `Valid (${durationLabel})`, days: diffDays, parsedDate: d };
+}
+
+// Pre-process Data
+const processedStaff = rawStaffData.map(s => {
+  const comps = s.Competencies.map(c => {
+    const exp = parseExpiry(c.Expiry);
+    return {
+      Name: c.Name,
+      Authority: c.Authority || 'N/A',
+      RawExpiry: c.Expiry,
+      Status: exp.status,
+      CountdownLabel: exp.label,
+      Days: exp.days,
+      Role: getRoleCategory(c.Name)
+    };
+  });
+  return {
+    Name: s.Name,
+    StaffID: s.StaffID,
+    Competencies: comps
+  };
+});
+
+// --- 3. UI STATE & RENDERING ---
+let currentRoleFilter = 'All';
+let isCompactView = false;
+
+function getBadgeClass(status) {
+  if (status === 'Expired') return 'badge-red';
+  if (status === 'Expiring Soon') return 'badge-amber';
+  if (status === 'Valid') return 'badge-green';
+  return 'badge-slate';
+}
+
+function updateKPIs(dataset) {
+  let totalStaff = dataset.length;
+  let totalCerts = 0, expired = 0, expiringSoon = 0, valid = 0;
+
+  dataset.forEach(s => {
+    s.Competencies.forEach(c => {
+      totalCerts++;
+      if (c.Status === 'Expired') expired++;
+      else if (c.Status === 'Expiring Soon') expiringSoon++;
+      else if (c.Status === 'Valid') valid++;
+    });
+  });
+
+  document.getElementById('kpiTotalStaff').innerText = totalStaff;
+  document.getElementById('kpiTotalCerts').innerText = totalCerts;
+  document.getElementById('kpiExpired').innerText = expired;
+  document.getElementById('kpiExpiringSoon').innerText = expiringSoon;
+  document.getElementById('kpiValid').innerText = valid;
+}
+
+function copyWhatsAppReminder(name, compTitle, expiryDate, daysRemaining) {
+  const dayStr = daysRemaining < 0 ? `telah tamat ${Math.abs(daysRemaining)} hari lepas` : `tinggal ${daysRemaining} hari`;
+  const message = `Salam En. ${name}, peringatan: sijil ${compTitle} anda tamat tempoh pada ${expiryDate} (${dayStr}). Sila hubungi pihak Safety / HR untuk proses pembaharuan.`;
+
+  navigator.clipboard.writeText(message).then(() => {
+    showToast();
+  }).catch(() => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+  });
+}
+
+function showToast() {
+  const t = document.getElementById('toastNotification');
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 2400);
+}
+
+function renderRoster() {
+  const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+  const statusFilter = document.getElementById('statusFilter').value;
+
+  // Filter staff and competencies
+  const filtered = [];
+
+  processedStaff.forEach(staff => {
+    const matchedComps = staff.Competencies.filter(c => {
+      const matchRole = (currentRoleFilter === 'All') || (c.Role === currentRoleFilter);
+      const matchStatus = (statusFilter === 'All') || (c.Status === statusFilter);
+
+      let matchSearch = true;
+      if (searchTerm) {
+        matchSearch = staff.Name.toLowerCase().includes(searchTerm) ||
+                      String(staff.StaffID).toLowerCase().includes(searchTerm) ||
+                      c.Name.toLowerCase().includes(searchTerm) ||
+                      c.Authority.toLowerCase().includes(searchTerm);
+      }
+      return matchRole && matchStatus && matchSearch;
+    });
+
+    if (matchedComps.length > 0) {
+      filtered.push({
+        Name: staff.Name,
+        StaffID: staff.StaffID,
+        Competencies: matchedComps
+      });
+    }
+  });
+
+  updateKPIs(filtered);
+  document.getElementById('resultsCount').innerText = `Showing ${filtered.length} staff members (${filtered.reduce((acc,s)=>acc+s.Competencies.length, 0)} competencies)`;
+
+  // Render Grid Cards
+  const cardContainer = document.getElementById('cardViewContainer');
+  let cardHtml = '';
+
+  filtered.forEach(staff => {
+    const initials = staff.Name.split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+    let compHtml = staff.Competencies.map(c => {
+      const badgeCls = getBadgeClass(c.Status);
+      const isUrgent = (c.Status === 'Expired' || c.Status === 'Expiring Soon');
+      const waBtn = isUrgent ? `
+        <button class="wa-btn" onclick="copyWhatsAppReminder('${staff.Name.replace(/'/g, "\\'")}', '${c.Name.replace(/'/g, "\\'")}', '${c.RawExpiry}', ${c.Days})">
+          WhatsApp Reminder
+        </button>
+      ` : '';
+
+      return `
+        <div class="comp-item">
+          <div class="comp-name">${c.Name}</div>
+          <div class="comp-meta">
+            <span>Auth: ${c.Authority}</span>
+            <span>&bull;</span>
+            <span class="badge ${badgeCls}">${c.CountdownLabel}</span>
+            ${waBtn}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    cardHtml += `
+      <div class="staff-card">
+        <div class="staff-header">
+          <div class="avatar">${initials}</div>
+          <div>
+            <div class="staff-name">${staff.Name}</div>
+            <div class="staff-id">Staff ID: ${staff.StaffID}</div>
+          </div>
+        </div>
+        <div class="comp-list">${compHtml}</div>
+      </div>
+    `;
+  });
+
+  cardContainer.innerHTML = cardHtml || '<div style="grid-column:1/-1; text-align:center; padding:40px; color:#64748b;">No staff or competencies match your search criteria.</div>';
+
+  // Render Compact Table
+  const tableBody = document.getElementById('tableBody');
+  let tableHtml = '';
+
+  filtered.forEach(staff => {
+    staff.Competencies.forEach(c => {
+      const isUrgent = (c.Status === 'Expired' || c.Status === 'Expiring Soon');
+      const waAction = isUrgent ? `
+        <button class="wa-btn" onclick="copyWhatsAppReminder('${staff.Name.replace(/'/g, "\\'")}', '${c.Name.replace(/'/g, "\\'")}', '${c.RawExpiry}', ${c.Days})">
+          Remind
+        </button>
+      ` : '<span style="color:#94a3b8; font-size:0.75rem;">None</span>';
+
+      tableHtml += `
+        <tr>
+          <td style="font-weight:700;">${staff.Name}</td>
+          <td style="font-family:monospace; color:#64748b;">${staff.StaffID}</td>
+          <td><span style="font-size:0.72rem; font-weight:700; color:#007a6c;">${c.Role}</span></td>
+          <td><strong>${c.Name}</strong></td>
+          <td style="color:#64748b;">${c.Authority}</td>
+          <td><span class="badge ${getBadgeClass(c.Status)}">${c.CountdownLabel}</span></td>
+          <td>${waAction}</td>
+        </tr>
+      `;
+    });
+  });
+
+  tableBody.innerHTML = tableHtml || '<tr><td colspan="7" style="text-align:center; padding:30px; color:#64748b;">No matching records found.</td></tr>';
+}
+
+// --- 4. EVENT LISTENERS & HELPERS ---
+
+function setRoleFilter(role, btnElement) {
+  currentRoleFilter = role;
+  document.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+  btnElement.classList.add('active');
+  renderRoster();
+}
+
+function filterByStatus(status) {
+  document.getElementById('statusFilter').value = status;
+  renderRoster();
+}
+
+function toggleView() {
+  isCompactView = !isCompactView;
+  document.getElementById('cardViewContainer').style.display = isCompactView ? 'none' : 'grid';
+  document.getElementById('tableViewContainer').style.display = isCompactView ? 'block' : 'none';
+  document.getElementById('viewBtnText').innerText = isCompactView ? 'Card View' : 'Compact View';
+}
+
+function exportToCSV() {
+  const rows = [["Staff Name", "Staff ID", "Discipline Role", "Competency", "Authority", "Expiry Date", "Status", "Countdown"]];
+  processedStaff.forEach(staff => {
+    staff.Competencies.forEach(c => {
+      rows.push([
+        `"${staff.Name}"`,
+        `"${staff.StaffID}"`,
+        `"${c.Role}"`,
+        `"${c.Name}"`,
+        `"${c.Authority}"`,
+        `"${c.RawExpiry}"`,
+        `"${c.Status}"`,
+        `"${c.CountdownLabel}"`
+      ]);
+    });
+  });
+
+  const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "GDCP_Staff_Competency_Tracker.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+document.getElementById('searchInput').addEventListener('input', renderRoster);
+document.getElementById('statusFilter').addEventListener('change', renderRoster);
+
+// Initial Execution
+renderRoster();
+</script>
+</body>
+</html>
