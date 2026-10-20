@@ -314,7 +314,7 @@
       <div class="kpi-val" id="kpiTotalStaff">0</div>
     </div>
     <div class="kpi-card" onclick="filterByStatus('All')">
-      <div class="kpi-label">Active Certs</div>
+      <div class="kpi-label">Total Certs</div>
       <div class="kpi-val" id="kpiTotalCerts">0</div>
     </div>
     <div class="kpi-card" style="border-left: 3px solid #dc2626;" onclick="filterByStatus('Expired')">
@@ -326,8 +326,12 @@
       <div class="kpi-val" id="kpiExpiringSoon" style="color:#d97706;">0</div>
     </div>
     <div class="kpi-card" style="border-left: 3px solid #16a34a;" onclick="filterByStatus('Valid')">
-      <div class="kpi-label" style="color:#16a34a;">🟢 Valid</div>
+      <div class="kpi-label" style="color:#16a34a;">🟢 Valid (>120d)</div>
       <div class="kpi-val" id="kpiValid" style="color:#16a34a;">0</div>
+    </div>
+    <div class="kpi-card" style="border-left: 3px solid #64748b;" onclick="filterByStatus('Permanent')">
+      <div class="kpi-label" style="color:#64748b;">⚪ Permanent / NA</div>
+      <div class="kpi-val" id="kpiPermanent" style="color:#64748b;">0</div>
     </div>
   </div>
 
@@ -340,7 +344,7 @@
         <option value="Expired">🔴 Expired Only</option>
         <option value="Expiring Soon">🟠 Expiring Soon (&le;120d Buffer)</option>
         <option value="Valid">🟢 Valid (>120d)</option>
-        <option value="Indefinite">⚪ Permanent / Verified / TBA</option>
+        <option value="Permanent">⚪ Permanent / No Expiry</option>
       </select>
     </div>
 
@@ -384,116 +388,85 @@
 <div id="toastNotification" class="toast">Reminder copied to clipboard!</div>
 
 <script>
-// --- 1. EMBEDDED CONSOLIDATED DATASET ---
+// --- 1. EMBEDDED CONSOLIDATED DATASET (78 UNIQUE STAFF, 157 CERTS) ---
 const rawStaffData = [
   {"Name":"Adib Fikri Zulkeflee","StaffID":"1093862","Competencies":[{"Name":"Energy Manager","Authority":"ST","Expiry":"OCT 26"},{"Name":"Vibration Analyst Cat-II (VCAT- II)","Authority":"MOBIUS","Expiry":"AUG 2029"},{"Name":"Professional Technologist","Authority":"MBOT","Expiry":"AUG 2026"}]},
-  {"Name":"Ahmad Fauzi Md Lazim","StaffID":"1043588","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
-  {"Name":"Ahmad Haziq Mustafa","StaffID":"1106538","Competencies":[{"Name":"Safety and Health Officer (SHO)","Authority":"NIOSH","Expiry":"13.5.2026"},{"Name":"CePIETSO","Authority":"EiMAS","Expiry":"16/12/2025"},{"Name":"CePSWAM","Authority":"EiMAS","Expiry":"APRIL 2026"},{"Name":"Noise Risk Assessor (NRA)","Authority":"NIOSH","Expiry":"13/3/2026"},{"Name":"Site Safety Supervisor","Authority":"NIOSH","Expiry":"16/1/2022"}]},
-  {"Name":"Ahmad Syahir B Hassan","StaffID":"1043743","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Ahmad Haziq Mustafa","StaffID":"1106538","Competencies":[{"Name":"Safety and Health Officer (SHO)","Authority":"NIOSH","Expiry":"Permanent / No Expiry"},{"Name":"CePIETSO","Authority":"EiMAS","Expiry":"Permanent / No Expiry"},{"Name":"CePSWAM","Authority":"EiMAS","Expiry":"Permanent / No Expiry"},{"Name":"Noise Risk Assessor (NRA)","Authority":"NIOSH","Expiry":"Permanent / No Expiry"},{"Name":"Site Safety Supervisor","Authority":"NIOSH","Expiry":"Permanent / No Expiry"}]},
   {"Name":"Ahmad Syakir Abd Latif","StaffID":"1060446","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"04/02/2028"},{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Energy Manager","Authority":"Energy Commission","Expiry":"22/10/2026"},{"Name":"Certified Environmental Professional in Scheduled Waste Management (CePSWAM)","Authority":"INSTITUT ALAM SEKITAR MALAYSIA, JAS","Expiry":"TBA"}]},
-  {"Name":"Ahmad Syazwan B Jamaludin","StaffID":"1075199","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
   {"Name":"Amer Amirul Atan","StaffID":"1043886","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"2027"}]},
-  {"Name":"Amir Firdaus Abd Wahab","StaffID":"1061409","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"24/07/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"18/09/2027"},{"Name":"Energy Manager","Authority":"Suruhanjaya Tenaga","Expiry":"21/10/2026"},{"Name":"CePIETSO-PCP","Authority":"JABATAN ALAM SEKITAR","Expiry":"-"}]},
+  {"Name":"Amir Firdaus Abd Wahab","StaffID":"1061409","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"JABATAN KESELAMATAN DAN KESIHATAN PEKERJAAN MALAYSIA","Expiry":"24/07/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JABATAN KESELAMATAN DAN KESIHATAN PEKERJAAN","Expiry":"18/09/2027"},{"Name":"Energy Manager","Authority":"Suruhanjaya Tenaga","Expiry":"21/10/2026"},{"Name":"CePIETSO-PCP","Authority":"JABATAN ALAM SEKITAR","Expiry":"Permanent / No Expiry"}]},
   {"Name":"Azmawi Hashim","StaffID":"1039629","Competencies":[{"Name":"B0 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"9/11/2035"}]},
-  {"Name":"Azrin B Arifin","StaffID":"1011354","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"05/11/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"20/12/2025"}]},
   {"Name":"Azwan Kama Azmir","StaffID":"99818","Competencies":[{"Name":"B0 Chargeman","Authority":"Malaysia Board of Technologists","Expiry":"12 JAN 2027"}]},
-  {"Name":"Che Ku Mohd Hafizi Che Ku Hamzah","StaffID":"1022212","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
   {"Name":"Esmail Abdullah","StaffID":"N/A","Competencies":[{"Name":"A1 Chargeman","Authority":"ST","Expiry":"2050"}]},
   {"Name":"Faizal Ahmad","StaffID":"1099535","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"26-2-2026"}]},
   {"Name":"Fakhruddin Yunus","StaffID":"1043934","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31 May 2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"06/10/2027"}]},
   {"Name":"Firdaus Kamaruzaman Kamaruldin","StaffID":"1088007","Competencies":[{"Name":"Vibration Analyst Cat-III (VCAT- III)","Authority":"MOBIUS INSTITUTE","Expiry":"24 October 2028"},{"Name":"Machine Lubricant Analyst II (MLA II)","Authority":"ICML","Expiry":"1 September 2027"}]},
-  {"Name":"Hafezze Kamarudin","StaffID":"1043935","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"JKKP WP","Expiry":"-"}]},
+  {"Name":"Hafezze Kamarudin","StaffID":"1043935","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"JKKP WP","Expiry":"Permanent / No Expiry"}]},
   {"Name":"Hamidun Abd Rahman","StaffID":"1043890","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"18/07/2027"}]},
   {"Name":"Hasham Din","StaffID":"1043936","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"02/12/2027"}]},
   {"Name":"Hazri Hafizi Halim","StaffID":"1060593","Competencies":[{"Name":"Steam Engineer Grade 1","Authority":"DOSH","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"26/11/2027"},{"Name":"CePSWAM","Authority":"DOE","Expiry":"Yearly renew CPD hour"},{"Name":"Energy Manager","Authority":"Energy Commission (ST)","Expiry":"23/10/2026"}]},
-  {"Name":"Herman Ahamadi","StaffID":"1043891","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"-"}]},
+  {"Name":"Herman Ahamadi","StaffID":"1043891","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"Permanent / No Expiry"}]},
   {"Name":"Imran M Sarip","StaffID":"1043940","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"03/02/2029"},{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/05/2027"}]},
-  {"Name":"Jasni Jamaluddin","StaffID":"1043941","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"15/07/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"03/11/2027"},{"Name":"Drebar Enjin Pembakaran Dalam (OYKEPD)","Authority":"DOSH","Expiry":"-"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"3/11/2027"}]},
-  {"Name":"Jemley Antung","StaffID":"1043892","Competencies":[{"Name":"A0 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"No Expiry Data"}]},
-  {"Name":"Kamarullzaman Bin Mat Zain","StaffID":"1011383","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
-  {"Name":"Khairul Adha Mat Zuki","StaffID":"1001257","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
-  {"Name":"Khairul Afdal Ismail","StaffID":"1136935","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
-  {"Name":"Khairul Afiq Khalid","StaffID":"1043944","Competencies":[{"Name":"Drebar Enjin Pembakaran Dalam (Gred 2)","Authority":"DOSH","Expiry":"NO"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"MKRS TRAINING INSTITUTE","Expiry":"13 JUNE 2026"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"29 JAN 2022"}]},
-  {"Name":"Khairul Ridhwan Alias","StaffID":"1022137","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
-  {"Name":"Luqman Hakim Ab Razak","StaffID":"1093857","Competencies":[{"Name":"Wireman PW4","Authority":"Suruhanjaya Tenaga","Expiry":"No Expiry Data"}]},
-  {"Name":"M Affandi Abu Hassan","StaffID":"1043951","Competencies":[{"Name":"B0 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"-"},{"Name":"ICE Driver 2nd Grade","Authority":"JKKP","Expiry":"-"}]},
-  {"Name":"M Affzan Jailani","StaffID":"1114802","Competencies":[{"Name":"A1 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"No Expiry Data"}]},
+  {"Name":"Jasni Jamaluddin","StaffID":"1043941","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"15/07/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"03/11/2027"},{"Name":"Drebar Enjin Pembakaran Dalam (OYKEPD)","Authority":"DOSH","Expiry":"Permanent / No Expiry"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"3/11/2027"}]},
+  {"Name":"Jemley Antung","StaffID":"1043892","Competencies":[{"Name":"A0 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"Khairul Afiq Khalid","StaffID":"1043944","Competencies":[{"Name":"Drebar Enjin Pembakaran Dalam (Gred 2)","Authority":"DOSH","Expiry":"Permanent / No Expiry"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"MKRS TRAINING INSTITUTE","Expiry":"13 JUNE 2026"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"29 JAN 2022"}]},
+  {"Name":"Luqman Hakim Ab Razak","StaffID":"1093857","Competencies":[{"Name":"Wireman PW4","Authority":"Suruhanjaya Tenaga","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"M Affandi Abu Hassan","StaffID":"1043951","Competencies":[{"Name":"B0 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"Permanent / No Expiry"},{"Name":"ICE Driver 2nd Grade","Authority":"JKKP","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"M Affzan Jailani","StaffID":"1114802","Competencies":[{"Name":"A1 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"Permanent / No Expiry"}]},
   {"Name":"M Arif Niza Burhanuddin","StaffID":"1057394","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"2027"},{"Name":"ICE Driver","Authority":"DOSH","Expiry":"2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"08/09/2025"}]},
   {"Name":"M Asri Abd Ghani","StaffID":"1098239","Competencies":[{"Name":"Vibration Analyst Cat-II (VCAT- II)","Authority":"Mobius Institute","Expiry":"12 March 2030"},{"Name":"Registered Energy Manager (REM) Type 1","Authority":"Energy Commissioning","Expiry":"23/10/2026"}]},
   {"Name":"M Asri Zakaria","StaffID":"1043904","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/5/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"24/12/2026"}]},
-  {"Name":"M Azli Shamsuri","StaffID":"1043905","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH / JKKP","Expiry":"31/05/2027"},{"Name":"Drebar Enjin Pembakaran Dalam (Gred 1)","Authority":"JKKP","Expiry":"-"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"-"}]},
+  {"Name":"M Azli Shamsuri","StaffID":"1043905","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH / JKKP","Expiry":"31/05/2027"},{"Name":"Drebar Enjin Pembakaran Dalam (Gred 1)","Authority":"JKKP","Expiry":"Permanent / No Expiry"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"Permanent / No Expiry"}]},
   {"Name":"M Azrul Yuthly","StaffID":"1136111","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"27/02/2027"}]},
   {"Name":"M Dzul Fikri Mohamad Duri","StaffID":"1043949","Competencies":[{"Name":"Steam Engineer Grade 1","Authority":"DOSH","Expiry":"5/6/2027"}]},
   {"Name":"M Edhzani Arbangai","StaffID":"1043952","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"24/10/2027"}]},
-  {"Name":"M Fariz Ma'Amin","StaffID":"1043950","Competencies":[{"Name":"IECEx Certified Personnel","Authority":"IECEx / SIRIM","Expiry":"2029-01-25"}]},
+  {"Name":"M Fariz Ma'Amin","StaffID":"1043950","Competencies":[{"Name":"IECEx Certified Personnel","Authority":"SIRIM QAS / IECEx","Expiry":"2029-01-25"}]},
   {"Name":"M Faruqi Rahmad","StaffID":"1062308","Competencies":[{"Name":"Asset Reliability Practitioner: Category ARP-E","Authority":"Mobius Institute","Expiry":"3 Nov 2026"},{"Name":"Vibration Analyst Cat-II (VCAT- II)","Authority":"Mobius Institute","Expiry":"4 Jan 2028"},{"Name":"Machine Lubricant Analyst I (MLA I)","Authority":"ICML","Expiry":"1 September 2025"},{"Name":"Machine Lubricant Analyst II (MLA II)","Authority":"ICML","Expiry":"1 Dec 2026"},{"Name":"Ultrasound: Category I","Authority":"Mobius Institute","Expiry":"23 Sep 2029"}]},
   {"Name":"M Fauzi Mat Zin","StaffID":"1043955","Competencies":[{"Name":"B4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"2027"},{"Name":"Wireman PW4","Authority":"PW-1130161","Expiry":"2027"}]},
-  {"Name":"M Hanif Sulaiman","StaffID":"1043918","Competencies":[{"Name":"A0 Chargeman","Authority":"Suruhanjaya Tenaga Malaysia","Expiry":"-"}]},
-  {"Name":"M Haris Lukman M Lotpi","StaffID":"1104009","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"11 March 2026"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JABATAN ALAM SEKITAR","Expiry":"NIL"}]},
+  {"Name":"M Hanif Sulaiman","StaffID":"1043918","Competencies":[{"Name":"A0 Chargeman","Authority":"Suruhanjaya Tenaga Malaysia","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"M Haris Lukman M Lotpi","StaffID":"1104009","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"11 March 2026"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JABATAN ALAM SEKITAR","Expiry":"Permanent / No Expiry"}]},
   {"Name":"M Izzuan Ariffin","StaffID":"1043908","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"JKKP","Expiry":"31/5/2027"}]},
-  {"Name":"M Luqman Rosli","StaffID":"1043973","Competencies":[{"Name":"CePSWAM","Authority":"DOE","Expiry":"-"}]},
+  {"Name":"M Luqman Rosli","StaffID":"1043973","Competencies":[{"Name":"CePSWAM","Authority":"DOE","Expiry":"Permanent / No Expiry"}]},
   {"Name":"M Nasir M Razali @ Yusoff","StaffID":"1083654","Competencies":[{"Name":"Infrared Thermography Category 1 (ITC-1)","Authority":"Infrared Training Center","Expiry":"8 March 2029"}]},
-  {"Name":"M Nusral Amli Ghazali","StaffID":"1043961","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH & JKKP","Expiry":"10/7/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"26/2/2026"},{"Name":"Enjin Pembakaran Dalam (Gred 2)","Authority":"JKKP","Expiry":"NO EXPIRY"}]},
+  {"Name":"M Nusral Amli Ghazali","StaffID":"1043961","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH & JKKP","Expiry":"10/7/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"26/2/2026"},{"Name":"Enjin Pembakaran Dalam (Gred 2)","Authority":"JKKP","Expiry":"Permanent / No Expiry"}]},
   {"Name":"M Puryadin Sudirman","StaffID":"1037822","Competencies":[{"Name":"Energy Manager","Authority":"SURUHANJAYA TENAGA (ST)","Expiry":"08/09/2027"},{"Name":"Professional Engineer (BEM)","Authority":"BOARD OF ENGINEERS MALAYSIA","Expiry":"31 DECEMBER 2026"}]},
   {"Name":"M Rohairul Amir Mat Deris","StaffID":"1043963","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"26/05/2028"}]},
-  {"Name":"M Safik Adam Hashim","StaffID":"1043910","Competencies":[{"Name":"A0 Chargeman","Authority":"suruhanjaya tenaga","Expiry":"-"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH BANGI","Expiry":"18-12-26"}]},
+  {"Name":"M Safik Adam Hashim","StaffID":"1043910","Competencies":[{"Name":"A0 Chargeman","Authority":"suruhanjaya tenaga","Expiry":"Permanent / No Expiry"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH BANGI","Expiry":"18-12-26"}]},
   {"Name":"M Safwan Azmi","StaffID":"1060094","Competencies":[{"Name":"API 570 Piping Inspector","Authority":"API","Expiry":"31/12/2026"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"26/2/2026"},{"Name":"IMM Coating Inspector","Authority":"IMM","Expiry":"26/7/2028"}]},
   {"Name":"M Salihin Mat Yasin","StaffID":"1043976","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"DOSH","Expiry":"31 may 2027"}]},
-  {"Name":"M Shukori Bidin @ Zainol Abidin","StaffID":"1043911","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"27/11/2027"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"NO EXPIRY DATE."}]},
-  {"Name":"M Sufian Hamzah","StaffID":"1043977","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"9/11/2024"},{"Name":"Enjin Pembakaran Dalam (Gred 2)","Authority":"JKKP","Expiry":"-"}]},
-  {"Name":"M Yusof Saad","StaffID":"1043965","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"No Expiry Data"}]},
+  {"Name":"M Shukori Bidin @ Zainol Abidin","StaffID":"1043911","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"27/11/2027"},{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"M Sufian Hamzah","StaffID":"1043977","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"9/11/2024"},{"Name":"Enjin Pembakaran Dalam (Gred 2)","Authority":"JKKP","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"M Yusof Saad","StaffID":"1043965","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"Permanent / No Expiry"}]},
   {"Name":"M Zulfadli Salleh","StaffID":"1043966","Competencies":[{"Name":"Boiler Driver Grade 2","Authority":"DOSH","Expiry":"31/5/2027"}]},
-  {"Name":"M Zulfaiz Mat Seman","StaffID":"1060392","Competencies":[{"Name":"Coating Inspector","Authority":"IMM","Expiry":"26/07/2028"},{"Name":"Infrared Thermography CAT-1","Authority":"ITC","Expiry":"No Expiry"},{"Name":"Vibration Analysis CAT-II","Authority":"Mobius Institute","Expiry":"27/09/2027"}]},
+  {"Name":"M Zulfaiz Mat Seman","StaffID":"1060392","Competencies":[{"Name":"Coating Inspector","Authority":"IMM","Expiry":"26/07/2028"},{"Name":"Infrared Thermography CAT-1","Authority":"ITC","Expiry":"Permanent / No Expiry"},{"Name":"Vibration Analysis CAT-II","Authority":"Mobius Institute","Expiry":"27/09/2027"}]},
   {"Name":"Mazhairil Paet","StaffID":"1043896","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"DOSH / JKKP","Expiry":"26/11/2027"}]},
-  {"Name":"Megat Muhamad Ariff","StaffID":"1064977","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"12/10/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"14/10/2025"}]},
-  {"Name":"Mhd Hazli Rosli","StaffID":"1130974","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"DOSH","Expiry":"23/06/2026"},{"Name":"CePSWAM","Authority":"DOE","Expiry":"No Expiry Data"},{"Name":"CePIETSO-PCP","Authority":"DOE","Expiry":"No Expiry Data"},{"Name":"CePBFO","Authority":"DOE","Expiry":"No Expiry Data"},{"Name":"Pengelasan Bahan Kimia Berbahaya","Authority":"DOSH","Expiry":"No Expiry Data"},{"Name":"Occupational Safety & Health Coordinator (OSH-C)","Authority":"DOSH","Expiry":"No Expiry Data"}]},
+  {"Name":"Mhd Hazli Rosli","StaffID":"1130974","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"DOSH","Expiry":"23/06/2026"},{"Name":"CePSWAM","Authority":"DOE","Expiry":"Permanent / No Expiry"},{"Name":"CePIETSO-PCP","Authority":"DOE","Expiry":"Permanent / No Expiry"},{"Name":"CePBFO","Authority":"DOE","Expiry":"Permanent / No Expiry"},{"Name":"Pengelasan Bahan Kimia Berbahaya","Authority":"DOSH","Expiry":"Permanent / No Expiry"},{"Name":"Occupational Safety & Health Coordinator (OSH-C)","Authority":"DOSH","Expiry":"Permanent / No Expiry"}]},
   {"Name":"Mohamad Farid Fitri Zuber","StaffID":"1043897","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"9/10/2027"},{"Name":"Certified Technician (MBOT)","Authority":"MBOT","Expiry":"21 JULY 2027"}]},
-  {"Name":"Mohamad Fitri Rusli","StaffID":"1043898","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"18/12/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"11/6/2026"},{"Name":"CePIETSO PCP","Authority":"DOE","Expiry":"FTR"},{"Name":"Juruteknik Penyejukbekuan (RACS)","Authority":"DOE","Expiry":"NIL"},{"Name":"Steam Engineer Grade 2","Authority":"DOSH","Expiry":"7/1/2028"}]},
-  {"Name":"Mohamad Halim Hussin","StaffID":"1061017","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"Not Expired"}]},
-  {"Name":"Mohamad Izuddin Hashim","StaffID":"1126786","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"13/11/2026"}]},
-  {"Name":"Mohamad Nazirul Syazwan Mohamad Shukri","StaffID":"1043899","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"No Expiry Data"}]},
+  {"Name":"Mohamad Fitri Rusli","StaffID":"1043898","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"18/12/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"11/6/2026"},{"Name":"CePIETSO PCP","Authority":"DOE","Expiry":"Permanent / No Expiry"},{"Name":"Juruteknik Penyejukbekuan (RACS)","Authority":"DOE","Expiry":"Permanent / No Expiry"},{"Name":"Steam Engineer Grade 2","Authority":"DOSH","Expiry":"7/1/2028"}]},
+  {"Name":"Mohamad Halim Hussin","StaffID":"1061017","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"Mohamad Nazirul Syazwan Mohamad Shukri","StaffID":"1043899","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"Permanent / No Expiry"}]},
   {"Name":"Mohamad Shahril Hussain","StaffID":"1043900","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"03/12/2027"}]},
-  {"Name":"Mohammad Alif Al Hafiz Bin Abdul Aziz","StaffID":"1116674","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"09/01/2026"}]},
-  {"Name":"Mohammad Ridha Bin Mohammad Khair","StaffID":"1075200","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
-  {"Name":"Mohammad Syamil Izzat Nabil Othman","StaffID":"1136934","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"27/02/2027"}]},
-  {"Name":"Mohammad Zulkarnain Mohd Idris","StaffID":"1126815","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"}]},
   {"Name":"Mohammed Syahir Alias","StaffID":"1043901","Competencies":[{"Name":"B0 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"23.10.2026"}]},
-  {"Name":"Mohd Fairuz Ramli","StaffID":"1011400","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
-  {"Name":"Mohd Faizul Md Nor","StaffID":"1001258","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
-  {"Name":"Mohd Fauzi Ismail","StaffID":"1011401","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
-  {"Name":"Mohd Syafiq Mohamad Tarmizi","StaffID":"1075253","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"27/02/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"04/09/2026"}]},
   {"Name":"Muhamad Amri Misbah","StaffID":"1043967","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"25/8/2027"}]},
   {"Name":"Muhamad Suhairul Wahid","StaffID":"1043968","Competencies":[{"Name":"Crane Inspector","Authority":"Amrest","Expiry":"27 Feb 2028"}]},
-  {"Name":"Muhammad Afiq Aiman Bin Ishak","StaffID":"1106574","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/06/2025"}]},
-  {"Name":"Muhammad Akmal Hakeem Mohd Yunos","StaffID":"1116743","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"No Expiry Data"}]},
-  {"Name":"Muhammad Amirul Aiman Ahmad","StaffID":"1116744","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"}]},
-  {"Name":"Muhammad Amirin Sazali","StaffID":"1136940","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"}]},
-  {"Name":"Muhammad Izzat Haris Bin Che Jamil","StaffID":"1136939","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"13/11/2026"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/11/2026"}]},
-  {"Name":"Muhammad Naim Adli Md Yusop","StaffID":"1106551","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"}]},
-  {"Name":"Muhammad Nurhan Zainordin","StaffID":"1106552","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"25/08/2026"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"18/11/2026"}]},
   {"Name":"Muhd Rusmawi Deraman","StaffID":"1043920","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/5/2027"},{"Name":"Steam Engineer Grade 2","Authority":"DOSH","Expiry":"21/1/2028"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"1/10/2027"}]},
   {"Name":"Nor Hazizi Haron","StaffID":"1060590","Competencies":[{"Name":"A4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"21/03/2027"}]},
   {"Name":"Norhazizi Abd Hamid","StaffID":"1043921","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"24/07/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"29/09/2027"}]},
-  {"Name":"Nur Shahirah Binti Mohd Noor","StaffID":"1116666","Competencies":[{"Name":"Safety and Health Officer (SHO)","Authority":"NIOSH","Expiry":"05/01/2027"},{"Name":"CePSWAM","Authority":"EiMAS","Expiry":"28 MAY 2026"}]},
   {"Name":"Raja Modin Iskandar","StaffID":"1043983","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"DOSH","Expiry":"23/10/2027"},{"Name":"Boiler Driver Grade 2","Authority":"DOSH","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"25/11/2026"}]},
   {"Name":"Rizalman Abdullah","StaffID":"1043984","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"04/07/2021"}]},
   {"Name":"Roslan Ngah","StaffID":"1043923","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"27/06/2027"}]},
-  {"Name":"Rozaidi Rais","StaffID":"1060577","Competencies":[{"Name":"Steam Engineer Grade 1","Authority":"DOSH / JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH / JKKP","Expiry":"06/10/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"No Expiry Data"},{"Name":"Safety and Health Officer (SHO)","Authority":"NIOSH","Expiry":"No Expiry Data"},{"Name":"Train The Trainer (TTT)","Authority":"NIOSH","Expiry":"No Expiry Data"}]},
-  {"Name":"Rusdi Ali","StaffID":"1043985","Competencies":[{"Name":"B4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"No Expiry Data"}]},
-  {"Name":"Saifun Najib Bin Naim","StaffID":"1136894","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"No Expiry Data"}]},
-  {"Name":"Samsulbahri B Mustakim","StaffID":"1022135","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
+  {"Name":"Rozaidi Rais","StaffID":"1060577","Competencies":[{"Name":"Steam Engineer Grade 1","Authority":"DOSH / JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH / JKKP","Expiry":"06/10/2027"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"Permanent / No Expiry"},{"Name":"Safety and Health Officer (SHO)","Authority":"NIOSH","Expiry":"Permanent / No Expiry"},{"Name":"Train The Trainer (TTT)","Authority":"NIOSH","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"Rusdi Ali","StaffID":"1043985","Competencies":[{"Name":"B4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"Permanent / No Expiry"}]},
   {"Name":"Shaarie Khalid","StaffID":"1097878","Competencies":[{"Name":"Vibration Analyst Cat-II (VCAT- II)","Authority":"MOBIUS INSTITUTE","Expiry":"12 March 2030"}]},
-  {"Name":"Shah Azizul Hakim Hashim","StaffID":"1064858","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"NO EXPIRED"},{"Name":"Wireman PW2","Authority":"Suruhanjaya Tenaga","Expiry":"NO EXPIRED"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"22-07-2026"}]},
-  {"Name":"Shah Riza Idris","StaffID":"138657","Competencies":[{"Name":"B4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"NO"}]},
-  {"Name":"Shahrul Anuwar Yaacub","StaffID":"1043987","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"no Expiry date"}]},
-  {"Name":"Siti Nadiatul Maula Misuan","StaffID":"1092436","Competencies":[{"Name":"Occupational Safety & Health Coordinator (OSH-C)","Authority":"DOSH","Expiry":"NO"},{"Name":"Safety and Health Officer (SHO)","Authority":"DOSH","Expiry":"NO"},{"Name":"Ergonomic Trained Person","Authority":"DOSH","Expiry":"NO"},{"Name":"CePSWAM","Authority":"DOE","Expiry":"NO"}]},
+  {"Name":"Shah Azizul Hakim Hashim","StaffID":"1064858","Competencies":[{"Name":"B4 Chargeman","Authority":"Suruhanjaya Tenaga","Expiry":"Permanent / No Expiry"},{"Name":"Wireman PW2","Authority":"Suruhanjaya Tenaga","Expiry":"Permanent / No Expiry"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"22-07-2026"}]},
+  {"Name":"Shah Riza Idris","StaffID":"138657","Competencies":[{"Name":"B4 Chargeman","Authority":"SURUHANJAYA TENAGA","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"Shahrul Anuwar Yaacub","StaffID":"1043987","Competencies":[{"Name":"Certified Technician for Refrigerant and Air-Conditioning System (RACS)","Authority":"JAS","Expiry":"Permanent / No Expiry"}]},
+  {"Name":"Siti Nadiatul Maula Misuan","StaffID":"1092436","Competencies":[{"Name":"Occupational Safety & Health Coordinator (OSH-C)","Authority":"DOSH","Expiry":"Permanent / No Expiry"},{"Name":"Safety and Health Officer (SHO)","Authority":"DOSH","Expiry":"Permanent / No Expiry"},{"Name":"Ergonomic Trained Person","Authority":"DOSH","Expiry":"Permanent / No Expiry"},{"Name":"CePSWAM","Authority":"DOE","Expiry":"Permanent / No Expiry"}]},
   {"Name":"Sy Ahmad Iqbal Sy Md. Harith","StaffID":"1043927","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"23/11/2028"}]},
-  {"Name":"Syafiq Roslan","StaffID":"1043750","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"12/10/2025"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"14/10/2025"}]},
   {"Name":"Syahridzuan Salleh","StaffID":"1060841","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"JKKP","Expiry":"31/05/2027"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"JKKP","Expiry":"07/09/2028"}]},
   {"Name":"Syahrul Hazri M Shaihani","StaffID":"1043925","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"13 June 2026"}]},
   {"Name":"Wan M Haniff Wan Kamaruddin","StaffID":"1043929","Competencies":[{"Name":"Boiler Driver Grade 1","Authority":"DOSH","Expiry":"31/5/2027"}]},
   {"Name":"Zakaria Abd Majid","StaffID":"1054816","Competencies":[{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"DOSH","Expiry":"22/1/2029"}]},
-  {"Name":"Zahrul Akmar Hasim","StaffID":"1011394","Competencies":[{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"16/06/2025"}]},
   {"Name":"Zulkarnain Senu","StaffID":"1043930","Competencies":[{"Name":"Steam Engineer Grade 2","Authority":"JKKP","Expiry":"02/03/2028"},{"Name":"Authorised Gas Tester Entry Supervisor (AGTES)","Authority":"NIOSH","Expiry":"10/08/2025"},{"Name":"Authorised Entrance Standby Person (AESP)","Authority":"NIOSH","Expiry":"23/06/2021"}]}
 ];
 
@@ -501,22 +474,18 @@ const rawStaffData = [
 
 function getRoleCategory(compName) {
   const u = (compName || '').toUpperCase();
-  if (u.includes('STEAM') || u.includes('BOILER')) return 'Boiler';
+  if (u.includes('STEAM') || u.includes('BOILER') || u.includes('ICE') || u.includes('ENJIN PEMBAKARAN') || u.includes('DREBAR ENJIN')) return 'Boiler';
   if (u.includes('CHARGEMAN') || u.includes('WIREMAN') || u.includes('PW2') || u.includes('PW4')) return 'Electrical';
-  if (u.includes('AGTES') || u.includes('GAS TESTER') || u.includes('AESP') || u.includes('STANDBY') || u.includes('ENTRANT')) return 'ConfinedSpace';
-  if (u.includes('SHO') || u.includes('SAFETY') || u.includes('CEPSWAM') || u.includes('CEPIETSO') || u.includes('ENERGY MANAGER') || u.includes('OSH-C')) return 'EnvSafety';
+  if (u.includes('AGTES') || u.includes('GAS TESTER') || u.includes('PENGUJI GAS') || u.includes('AESP') || u.includes('STANDBY') || u.includes('ENTRANT')) return 'ConfinedSpace';
+  if (u.includes('SHO') || u.includes('SAFETY') || u.includes('CEPSWAM') || u.includes('CEPIETSO') || u.includes('CEPBFO') || u.includes('ENERGY MANAGER') || u.includes('OSH-C') || u.includes('NOISE RISK') || u.includes('ERGONOMIC') || u.includes('PENGELASAN')) return 'EnvSafety';
   return 'Other';
 }
 
 function parseExpiry(expStr) {
-  if (!expStr || expStr === 'nan' || expStr === 'N/A' || expStr === '-') {
-    return { status: 'Indefinite', label: 'Indefinite / Permanent', days: null, parsedDate: null };
+  if (!expStr || expStr.includes('Permanent') || expStr === 'TBA' || expStr.includes('CPD') || expStr === 'N/A' || expStr === '-') {
+    return { status: 'Permanent', label: expStr || 'Permanent / No Expiry', days: null, parsedDate: null };
   }
   const s = String(expStr).trim().toUpperCase();
-  const indefiniteTerms = ['NO', 'NIL', 'TBA', 'NO EXPIRY', 'NOT EXPIRED', 'NO EXPIRED', 'NO EXPIRY DATA', 'NO EXPIRY DATE.', 'YEARLY RENEW CPD HOUR', 'FTR'];
-  if (indefiniteTerms.includes(s) || s.includes('NO EXPIRY')) {
-    return { status: 'Indefinite', label: 'Indefinite / TBA', days: null, parsedDate: null };
-  }
 
   let d = null;
   // Format check: YYYY-MM-DD
@@ -531,22 +500,28 @@ function parseExpiry(expStr) {
     if (year < 100) year += 2000;
     d = new Date(year, month, day);
   } else if (/^[A-Z]{3,9}\s+\d{2,4}$/.test(s)) {
-    // "OCT 26" or "APRIL 2026"
     const [monStr, yStr] = s.split(/\s+/);
     let year = parseInt(yStr);
     if (year < 100) year += 2000;
     const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
     const mIdx = months.findIndex(m => monStr.startsWith(m));
-    if (mIdx !== -1) d = new Date(year, mIdx + 1, 0); // Last day of month
+    if (mIdx !== -1) d = new Date(year, mIdx + 1, 0);
+  } else if (/^\d{1,2}\s+[A-Z]+\s+\d{4}$/.test(s)) {
+    const [dStr, monStr, yStr] = s.split(/\s+/);
+    let day = parseInt(dStr);
+    let year = parseInt(yStr);
+    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const mIdx = months.findIndex(m => monStr.startsWith(m));
+    if (mIdx !== -1) d = new Date(year, mIdx, day);
   } else if (/^\d{4}$/.test(s)) {
-    d = new Date(parseInt(s), 11, 31); // End of year
+    d = new Date(parseInt(s), 11, 31);
   } else {
     const fallback = new Date(s);
     if (!isNaN(fallback.getTime())) d = fallback;
   }
 
   if (!d || isNaN(d.getTime())) {
-    return { status: 'Indefinite', label: expStr, days: null, parsedDate: null };
+    return { status: 'Permanent', label: expStr, days: null, parsedDate: null };
   }
 
   const today = new Date();
@@ -591,7 +566,7 @@ const processedStaff = rawStaffData.map(s => {
 // --- 3. UI STATE & RENDERING ---
 let currentRoleFilter = 'All';
 let isCompactView = false;
-let currentFilteredStaff = []; // Stores filtered records for CSV Export
+let currentFilteredStaff = [];
 
 function getBadgeClass(status) {
   if (status === 'Expired') return 'badge-red';
@@ -602,7 +577,7 @@ function getBadgeClass(status) {
 
 function updateKPIs(dataset) {
   let totalStaff = dataset.length;
-  let totalCerts = 0, expired = 0, expiringSoon = 0, valid = 0;
+  let totalCerts = 0, expired = 0, expiringSoon = 0, valid = 0, permanent = 0;
 
   dataset.forEach(s => {
     s.Competencies.forEach(c => {
@@ -610,6 +585,7 @@ function updateKPIs(dataset) {
       if (c.Status === 'Expired') expired++;
       else if (c.Status === 'Expiring Soon') expiringSoon++;
       else if (c.Status === 'Valid') valid++;
+      else if (c.Status === 'Permanent') permanent++;
     });
   });
 
@@ -618,11 +594,12 @@ function updateKPIs(dataset) {
   document.getElementById('kpiExpired').innerText = expired;
   document.getElementById('kpiExpiringSoon').innerText = expiringSoon;
   document.getElementById('kpiValid').innerText = valid;
+  document.getElementById('kpiPermanent').innerText = permanent;
 }
 
 function copyWhatsAppReminder(name, compTitle, expiryDate, daysRemaining) {
   const dayStr = daysRemaining < 0 ? `telah tamat ${Math.abs(daysRemaining)} hari lepas` : `tinggal ${daysRemaining} hari`;
-  const message = `Salam En. ${name}, peringatan: sijil ${compTitle} anda tamat tempoh pada ${expiryDate} (${dayStr}). Sila hubungi pihak Safety / HR untuk proses pembaharuan.`;
+  const message = `Salam En. ${name}, peringatan: sijil ${compTitle} anda akan tamat tempoh pada ${expiryDate} (${dayStr}). Sila hubungi pihak Safety / HR untuk proses pembaharuan.`;
 
   navigator.clipboard.writeText(message).then(() => {
     showToast();
@@ -667,7 +644,6 @@ function renderRoster() {
     }
   });
 
-  // Keep a reference to current filtered results for export
   currentFilteredStaff = filtered;
 
   updateKPIs(filtered);
