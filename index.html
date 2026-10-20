@@ -58,7 +58,7 @@
   .btn {
     appearance: none;
     border: none;
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.18);
     color: white;
     padding: 8px 14px;
     border-radius: 8px;
@@ -70,7 +70,7 @@
     align-items: center;
     gap: 6px;
   }
-  .btn:hover { background: rgba(255,255,255,0.25); }
+  .btn:hover { background: rgba(255,255,255,0.28); }
   .main-container { max-width: 1200px; margin: 0 auto; padding: 20px 16px 60px; }
 
   /* KPI Tiles */
@@ -290,7 +290,7 @@
   <div class="header-inner">
     <div class="header-title">
       <h1>GDCP Staff Competency Matrix</h1>
-      <p>Operational Role Tracking & Regulatory Expiry Monitor</p>
+      <p>Operational Role Tracking &amp; Regulatory Expiry Monitor</p>
     </div>
     <div class="header-actions">
       <button class="btn" onclick="toggleView()" id="viewToggleBtn">
@@ -591,6 +591,7 @@ const processedStaff = rawStaffData.map(s => {
 // --- 3. UI STATE & RENDERING ---
 let currentRoleFilter = 'All';
 let isCompactView = false;
+let currentFilteredStaff = []; // Stores filtered records for CSV Export
 
 function getBadgeClass(status) {
   if (status === 'Expired') return 'badge-red';
@@ -640,7 +641,6 @@ function renderRoster() {
   const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
   const statusFilter = document.getElementById('statusFilter').value;
 
-  // Filter staff and competencies
   const filtered = [];
 
   processedStaff.forEach(staff => {
@@ -666,6 +666,9 @@ function renderRoster() {
       });
     }
   });
+
+  // Keep a reference to current filtered results for export
+  currentFilteredStaff = filtered;
 
   updateKPIs(filtered);
   document.getElementById('resultsCount').innerText = `Showing ${filtered.length} staff members (${filtered.reduce((acc,s)=>acc+s.Competencies.length, 0)} competencies)`;
@@ -767,8 +770,15 @@ function toggleView() {
 }
 
 function exportToCSV() {
+  if (!currentFilteredStaff || currentFilteredStaff.length === 0) {
+    alert("No staff or competencies to export under current filters.");
+    return;
+  }
+
   const rows = [["Staff Name", "Staff ID", "Discipline Role", "Competency", "Authority", "Expiry Date", "Status", "Countdown"]];
-  processedStaff.forEach(staff => {
+  
+  // Loops strictly over current filtered items
+  currentFilteredStaff.forEach(staff => {
     staff.Competencies.forEach(c => {
       rows.push([
         `"${staff.Name}"`,
@@ -787,7 +797,7 @@ function exportToCSV() {
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
   link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "GDCP_Staff_Competency_Tracker.csv");
+  link.setAttribute("download", "GDCP_Staff_Competency_Filtered.csv");
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
